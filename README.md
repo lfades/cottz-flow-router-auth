@@ -12,16 +12,17 @@ FlowRouter.route('/admin', {
   action: function () {
     // some code...
   }
+  // name: 'VIPzone'
 });
 
-// default route if no one is delivered from the controller
+// default redirect route if no one is delivered from the controller
 FlowRouter.redirect = '/notFound';
 
 FlowRouter.Auth.newController(function () {
   return true;
+// if you route has a name use it instead of the path definition
 }, '/admin');
 ```
-###
 
 ## API
 All these methods are within FlowRouter.Auth

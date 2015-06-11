@@ -71,7 +71,7 @@ Tracker.autorun(function () {
 	FlowRouter.watchPathChange();
 	var route = FlowRouter.current().route;
 	if (route)
-		currentRoute.set(route.path);
+		currentRoute.set(route.name || route.path);
 });
 
 Tracker.autorun(function () {
