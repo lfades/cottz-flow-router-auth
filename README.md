@@ -1,6 +1,11 @@
 # cottz-flow-router-auth
 simple way to validate authentications with Flow-Router
 
+## Installation
+```shell
+meteor add cottz:flow-router-auth
+```
+
 ## Getting Started
 ```js
 FlowRouter.route('/admin', {
