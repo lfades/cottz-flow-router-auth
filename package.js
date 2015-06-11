@@ -16,7 +16,7 @@ Package.onUse(function(api) {
   api.use('tracker');
   api.use('mongo');
   api.use('reactive-var');
-  api.use('meteorhacks:flow-router');
+  api.use('meteorhacks:flow-router@1.14.1');
 
   api.addFiles('flow-router-auth.js', 'client');
 });
