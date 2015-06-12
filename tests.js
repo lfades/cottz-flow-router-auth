@@ -1,10 +1,10 @@
 var auth = FlowRouter.Auth;
 
-Tinytest.addAsync('newController - global', function (test, next) {
+Tinytest.addAsync('allow - global', function (test, next) {
 	var route = '/' + Random.id(),
 	passed = 0;
 
-	auth.newController(function () {
+	auth.allow(function () {
 		passed ++;
 		return true;
 	});
@@ -21,11 +21,11 @@ Tinytest.addAsync('newController - global', function (test, next) {
 	}, 100);
 });
 
-Tinytest.addAsync('newController - in one route', function (test, next) {
+Tinytest.addAsync('allow - in one route', function (test, next) {
 	var route = '/' + Random.id(),
 	passed = 0;
 
-	auth.newController(function () {
+	auth.allow(function () {
 		passed ++;
 		return true;
 	}, route);
@@ -42,11 +42,11 @@ Tinytest.addAsync('newController - in one route', function (test, next) {
 	}, 100);
 });
 
-Tinytest.addAsync('newController - only', function (test, next) {
+Tinytest.addAsync('allow - only', function (test, next) {
 	var route = '/' + Random.id(),
 	passed = 0;
 
-	auth.newController(function () {
+	auth.allow(function () {
 		passed ++;
 		return true;
 	}, {only: route});
@@ -63,14 +63,14 @@ Tinytest.addAsync('newController - only', function (test, next) {
 	}, 100);
 });
 
-Tinytest.addAsync('newController - only - array', function (test, next) {
+Tinytest.addAsync('allow - only - array', function (test, next) {
 	var route1 = '/' + Random.id(),
 	route2 = '/' + Random.id(),
 	passed = 0;
 
 	// the package does not stop the action of the routes
 	// and the action goes before authentication
-	auth.newController(function () {
+	auth.allow(function () {
 		passed ++;
 		return true;
 	}, {only: [route1, route2]});
@@ -102,12 +102,12 @@ Tinytest.addAsync('newController - only - array', function (test, next) {
 	}, 100);
 });
 
-Tinytest.addAsync('newController - except', function (test, next) {
+Tinytest.addAsync('allow - except', function (test, next) {
 	var route1 = '/' + Random.id(),
 	route2 = '/' + Random.id(),
 	passed = 0;
 
-	auth.newController(function () {
+	auth.allow(function () {
 		passed ++;
 		return true;
 	}, {except: route1});
@@ -117,41 +117,7 @@ Tinytest.addAsync('newController - except', function (test, next) {
 			FlowRouter.go(route2);
 		},
 		triggersExit: [function () {
-			// is 1 because the router doesn't start in route1
-			test.equal(passed, 1);
-			passed ++;
-		}]
-	});
-	
-	FlowRouter.route(route2, {
-		action: function () {}
-	});
-
-	FlowRouter.go(route1);
-
-	setTimeout(function () {
-		test.equal(passed, 3);
-		next();
-	}, 100);
-});
-
-Tinytest.addAsync('newController - except - array', function (test, next) {
-	var route1 = '/' + Random.id(),
-	route2 = '/' + Random.id(),
-	passed = 0;
-
-	auth.newController(function () {
-		passed ++;
-		return true;
-	}, {except: [route1, route2]});
-
-	FlowRouter.route(route1, {
-		action: function () {
-			FlowRouter.go(route2);
-		},
-		triggersExit: [function () {
-			// is 1 because the router doesn't start in route1
-			test.equal(passed, 1);
+			test.equal(passed, 0);
 			passed ++;
 		}]
 	});
@@ -168,12 +134,44 @@ Tinytest.addAsync('newController - except - array', function (test, next) {
 	}, 100);
 });
 
-Tinytest.addAsync('newController - redirect', function (test, next) {
+Tinytest.addAsync('allow - except - array', function (test, next) {
 	var route1 = '/' + Random.id(),
 	route2 = '/' + Random.id(),
 	passed = 0;
 
-	auth.newController(function () {
+	auth.allow(function () {
+		passed ++;
+		return true;
+	}, {except: [route1, route2]});
+
+	FlowRouter.route(route1, {
+		action: function () {
+			FlowRouter.go(route2);
+		},
+		triggersExit: [function () {
+			test.equal(passed, 0);
+			passed ++;
+		}]
+	});
+	
+	FlowRouter.route(route2, {
+		action: function () {}
+	});
+
+	FlowRouter.go(route1);
+
+	setTimeout(function () {
+		test.equal(passed, 1);
+		next();
+	}, 100);
+});
+
+Tinytest.addAsync('allow - redirect', function (test, next) {
+	var route1 = '/' + Random.id(),
+	route2 = '/' + Random.id(),
+	passed = 0;
+
+	auth.allow(function () {
 		passed ++;
 		return false;
 	}, {only: route1, redirect: route2});
@@ -198,14 +196,14 @@ Tinytest.addAsync('newController - redirect', function (test, next) {
 	}, 100);
 });
 
-Tinytest.addAsync('newController - redirect to default', function (test, next) {
+Tinytest.addAsync('allow - redirect to default', function (test, next) {
 	var route1 = '/' + Random.id(),
 	route2 = '/' + Random.id(),
 	passed = 0;
 
 	auth.redirect = route2;
 
-	auth.newController(function () {
+	auth.allow(function () {
 		passed ++;
 		return false;
 	}, {only: route1});
@@ -230,11 +228,11 @@ Tinytest.addAsync('newController - redirect to default', function (test, next) {
 	}, 100);
 });
 
-Tinytest.addAsync('newControllers', function (test, next) {
+Tinytest.addAsync('allows', function (test, next) {
 	var route = '/' + Random.id(),
 	passed = 0;
 
-	auth.newControllers([
+	auth.allows([
 		{
 			action: function () {
 				passed ++;
@@ -263,7 +261,7 @@ Tinytest.addAsync('newControllers', function (test, next) {
 	}, 100);
 });
 
-Tinytest.addAsync('callControllers', function (test, next) {
+Tinytest.addAsync('check', function (test, next) {
 	var route = '/' + Random.id(),
 	passed = 0;
 
@@ -275,9 +273,9 @@ Tinytest.addAsync('callControllers', function (test, next) {
 		only: route
 	}
 
-	auth.newControllers([controller, controller, controller, controller, controller]);
+	auth.allows([controller, controller, controller, controller, controller]);
 
-	auth.callControllers(route);
+	auth.check(route);
 
 	setTimeout(function () {
 		test.equal(passed, 5);
@@ -302,8 +300,8 @@ function createControllers () {
 Tinytest.addAsync('permissionGranted', function (test, next) {
 	var controllers = createControllers();
 
-	auth.newControllers(controllers.controllers);
-	auth.callControllers(controllers.route);
+	auth.allows(controllers.controllers);
+	auth.check(controllers.route);
 
 	setTimeout(function () {
 		test.equal(auth.permissionGranted(), true);
@@ -327,8 +325,8 @@ Tinytest.addAsync('permissionGranted - denied', function (test, next) {
 		}]
 	});
 
-	auth.newControllers(controllers.controllers);
-	auth.callControllers(controllers.route);
+	auth.allows(controllers.controllers);
+	auth.check(controllers.route);
 
 	setTimeout(function () {
 		test.equal(passed, true);

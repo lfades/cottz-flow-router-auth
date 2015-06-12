@@ -15,10 +15,10 @@ FlowRouter.route('/admin', {
   // name: 'VIPzone'
 });
 
-// default redirect route if no one is delivered from the controller
+// default redirect route if no one is delivered from the allow
 FlowRouter.redirect = '/notFound';
 
-FlowRouter.Auth.newController(function () {
+FlowRouter.Auth.allow(function () {
   return true;
 // if you route has a name use it instead of the path definition
 }, '/admin');
@@ -27,39 +27,50 @@ FlowRouter.Auth.newController(function () {
 ## API
 All these methods are within FlowRouter.Auth
 
-### newController (action, options)
-create a new controller for a route or group of routes, **action** is the function to be executed. **options** is one of three values: an objetc with `only` or `except` and `redirect`, a string that means 'only' or nothing and the controller will run in all routes.
-If **action** returns false quickly redirect and the following controllers will not run
+### allow (action, options)
+create a new allow for a route or group of routes, **action** is the function to be executed. **options** is one of three values: an objetc with `only` or `except` and `redirect`, a string that means 'only' or nothing and the allow will run in all routes.
+If **action** returns false quickly redirect and the following allows will not run
 ```js
 // only for /admin
-FlowRouter.Auth.newController(function () {
+FlowRouter.Auth.allow(function () {
   return true;
 }, {only: '/admin'}) // only can be also array
 
 // on all routes except for /admin
-FlowRouter.Auth.newController(function () {
+FlowRouter.Auth.allow(function () {
   return true;
 }, {except: '/admin'}) // except can be also an array
 
 // only for /admin
-FlowRouter.Auth.newController(function () {
+FlowRouter.Auth.allow(function () {
   return true;
 }, '/admin');
 
 // Run in all routes
-FlowRouter.Auth.newController(function () {
+FlowRouter.Auth.allow(function () {
   return true;
 })
 
-// Redirect to /notFound
-FlowRouter.Auth.newController(function () {
-  return true;
-}, {redirect: '/notFound'});
+// Redirect to /home
+FlowRouter.Auth.allow(function () {
+  return false;
+}, {redirect: '/home'});
+
+// only for homeGroup
+var homeGroup = FlowRouter.group();
+
+FlowRouter.Auth.allow(function () {
+  return true
+}, homeGroup);
+
+FlowRouter.Auth.allow(function () {
+  return true
+}, {redirect: '/home', only: homeGroup});
 ```
-### newControllers (controllers)
-**controllers** is an array of objects, action is the function to be executed and the remaining options are equal to the options from `newController`
+### allows (controllers)
+**controllers** is an array of objects, action is the function to be executed and the remaining options are equal to the options from `allow`
 ```js
-FlowRouter.Auth.newControllers([
+FlowRouter.Auth.allows([
   {
     action: function () {
       return true;
@@ -74,7 +85,7 @@ FlowRouter.Auth.newControllers([
 ]);
 ```
 ### permissionGranted ()
-returns true if all controllers passed
+returns true if all allows passed
 ```js
 Tracker.autorun(function () {
   if (FlowRouter.Auth.permissionGranted())
@@ -96,7 +107,7 @@ Template.registerHelper('permissionsGranted', function () {
 ```
 
 ### ready()
-returns true if there is no controller running
+returns true if there is no allow running
 ```js
 // Example
 Template.registerHelper('authReady', function () {

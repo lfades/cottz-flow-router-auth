@@ -5,50 +5,68 @@ FlowAuth = function () {
 	this.authReady = new ReactiveVar(true);
 };
 
-FlowAuth.prototype.newController = function (callback, where) {
+FlowAuth.prototype.allow = function (callback, options) {
 	check(callback, Function);
-	check(where, Match.Optional(Match.OneOf(Object, String)));
 
-	var options = {
+	var controller = {
 		action: callback,
 		createdAt: (new Date()).getTime()
 	};
-	if (where) {
-		if (typeof where == 'string')
-			options.only = where;
-		else {
-			where.except
-			? options.except = where.except
-			: options.only = where.only || null;
-			options.redirect = where.redirect;
-		}
+	if (options) {
+		options.except
+		? controller.except = options.except
+		: controller.only = options.only || options;
+		controller.redirect = options.redirect;
 	}
-	this.controllers.insert(options);
+	if (typeof controller.only == 'object' && !Array.isArray(controller.only)) {
+		var groupId = Random.id(),
+		group = controller.only;
+
+		if (!group.auth) group.auth = [];
+		group.auth.push(groupId);
+
+		controller.only = groupId;
+	}
+	this.controllers.insert(controller);
 };
 
-FlowAuth.prototype.newControllers = function (controllers) {
+FlowAuth.prototype.allows = function (controllers) {
 	for (var i = 0, length = controllers.length; i < length; i ++) {
 		var c = controllers[i];
-		this.newController(c.action, c);
+		this.allow(c.action, c);
 	};
 };
 
-FlowAuth.prototype.callControllers = function (path) {
-	var controllers = [],
-	redirect = this.redirect,
-	next = true;
+FlowAuth.prototype.check = function (path, group) {
+	var redirect = this.redirect,
+	next = true,
+	only = path;
 
 	this.authReady.set(false);
 	
+	if (group) {
+		var auth = [];
+		while (group) {
+			if (group.auth)
+				auth.push(group.auth);
+			group = group.parent;
+		};
+		if (auth.length) {
+			auth.unshift(only);
+			only = {$in: _.flatten(auth)};
+		}	
+	}
+
 	this.controllers.find({
 		$or: [
-			{only: path},
+			{only: only},
 			{except: {$ne: path}, only: null}
 		]
 	}, {sort: {createdAt: 1}}).forEach(function (route) {
 		if (!next) return;
 
 		next = route.action();
+		
 		if (!next)
 			FlowRouter.go(route.redirect || redirect);
 	});
@@ -65,20 +83,4 @@ FlowAuth.prototype.ready = function () {
 	return this.authReady.get();
 };
 // ----------------------------------------------------------------------
-var currentRoute = new ReactiveVar('');
-
-Tracker.autorun(function () {
-	FlowRouter.watchPathChange();
-	var route = FlowRouter.current().route;
-	if (route)
-		currentRoute.set(route.name || route.path);
-});
-
-Tracker.autorun(function () {
-	var route = currentRoute.get();
-	if (!route) return;
-	
-	FlowRouter.Auth.callControllers(route);
-});
-
 FlowRouter.Auth = new FlowAuth();
