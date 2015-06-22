@@ -1,6 +1,6 @@
 Package.describe({
   name: 'cottz:flow-router-auth',
-  version: '0.0.5',
+  version: '0.0.6',
   // Brief, one-line summary of the package.
   summary: 'simple way to validate authentications with Flow-Router',
   // URL to the Git repository containing the source code for this package.
@@ -16,7 +16,7 @@ Package.onUse(function(api) {
   api.use('tracker');
   api.use('mongo');
   api.use('reactive-var');
-  api.use('meteorhacks:flow-router@1.14.1');
+  api.use('meteorhacks:flow-router@1.16.1');
 
   api.addFiles('flow-router-auth.js');
   api.addFiles('client.js', 'client');

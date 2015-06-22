@@ -37,8 +37,8 @@ FlowAuth.prototype.allows = function (controllers) {
 	};
 };
 
-FlowAuth.prototype.check = function (path, group) {
-	var redirect = this.redirect,
+FlowAuth.prototype.check = function (path, group, redirect) {
+	var authRedirect = this.redirect,
 	next = true,
 	only = path;
 
@@ -67,8 +67,11 @@ FlowAuth.prototype.check = function (path, group) {
 
 		next = route.action();
 		
-		if (!next)
-			FlowRouter.go(route.redirect || redirect);
+		if (!next) {
+			typeof redirect === 'function'
+			? redirect(route.redirect || authRedirect)
+			: FlowRouter.go(route.redirect || authRedirect);
+		}
 	});
 	
 	this.authReady.set(true);
