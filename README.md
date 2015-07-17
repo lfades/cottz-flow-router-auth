@@ -16,7 +16,7 @@ FlowRouter.route('/admin', {
 });
 
 // default redirect route if no one is delivered from the allow
-FlowRouter.redirect = '/notFound';
+FlowRouter.Auth.redirect = '/notFound';
 
 FlowRouter.Auth.allow(function () {
   return true;
