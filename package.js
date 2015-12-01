@@ -1,6 +1,6 @@
 Package.describe({
   name: 'cottz:flow-router-auth',
-  version: '0.0.8',
+  version: '0.0.9',
   // Brief, one-line summary of the package.
   summary: 'simple way to validate authentications with Flow-Router',
   // URL to the Git repository containing the source code for this package.
@@ -11,12 +11,16 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-  api.versionsFrom('1.1.0.3');
+  api.versionsFrom('1.2.1');
 
-  api.use('tracker');
-  api.use('mongo');
-  api.use('reactive-var');
-  api.use('kadira:flow-router@2.0.0');
+  api.use([
+    'tracker',
+    'mongo',
+    'check',
+    'random',
+    'reactive-var',
+    'kadira:flow-router@2.10.0'
+  ]);
 
   api.addFiles('flow-router-auth.js');
   api.addFiles('client.js', 'client');
