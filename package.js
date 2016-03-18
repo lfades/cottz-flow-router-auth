@@ -1,6 +1,6 @@
 Package.describe({
   name: 'cottz:flow-router-auth',
-  version: '0.0.9',
+  version: '0.1.0',
   // Brief, one-line summary of the package.
   summary: 'simple way to validate authentications with Flow-Router',
   // URL to the Git repository containing the source code for this package.
@@ -14,6 +14,7 @@ Package.onUse(function(api) {
   api.versionsFrom('1.2.1');
 
   api.use([
+    'ecmascript',
     'tracker',
     'mongo',
     'check',
