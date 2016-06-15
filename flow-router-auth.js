@@ -1,84 +1,88 @@
 class FlowAuth {
   constructor () {
-    this.controllers = new Mongo.Collection(null)
-    this.redirect = 'notFound'
-    this.hasPermission = new ReactiveVar(false)
-    this.authReady = new ReactiveVar(true)
+    this.controllers = new Mongo.Collection(null);
+    this.redirect = 'notFound';
+    this.hasPermission = new ReactiveVar(false);
+    this.authReady = new ReactiveVar(true);
   }
   allow (callback, options) {
-    check(callback, Function)
+    check(callback, Function);
 
-    let controller = {
+    const controller = {
       action: callback,
       createdAt: (new Date()).getTime()
-    }
+    };
+
     if (options) {
       options.except
       ? controller.except = options.except
       : controller.only = options.only || options
       controller.redirect = options.redirect
-    }
+    };
+
     if (typeof controller.only == 'object' && !Array.isArray(controller.only)) {
-      let groupId = Random.id(),
-      group = controller.only
+      const groupId = Random.id();
+      const group = controller.only;
 
-      if (!group.auth) group.auth = []
-      group.auth.push(groupId)
+      if (!group.auth) group.auth = [];
+      group.auth.push(groupId);
 
-      controller.only = groupId
+      controller.only = groupId;
     }
-    this.controllers.insert(controller)
+    this.controllers.insert(controller);
   }
   allows (controllers) {
     for (let c of controllers) {
-      this.allow(c.action, c)
-    }
+      this.allow(c.action, c);
+    };
   }
   check (path, group, redirect) {
-    let next = true,
-    only = path
+    let next = true;
+    let only = path;
 
-    this.authReady.set(false)
-    
+    this.authReady.set(false);
+
     if (group) {
-      let auth = []
+      const auth = [];
+
       while (group) {
         if (group.auth)
-          auth.push(group.auth)
-        group = group.parent
-      }
+          auth.push(group.auth);
+        group = group.parent;
+      };
+
       if (auth.length) {
-        auth.unshift(only)
-        only = {$in: _.flatten(auth)}
+        auth.unshift(only);
+        only = {$in: _.flatten(auth)};
       }
     }
 
     this.controllers.find({
       $or: [
-        {only: only},
+        {only},
         {except: {$ne: path}, only: null}
       ]
     }, {sort: {createdAt: 1}}).forEach(route => {
-      if (!next) return
+      if (!next) return;
 
-      next = route.action()
-      
+      next = route.action();
+
       if (!next) {
         typeof redirect === 'function'
         ? redirect(route.redirect || this.redirect)
-        : FlowRouter.go(route.redirect || this.redirect)
+        : FlowRouter.go(route.redirect || this.redirect);
       }
-    })
-    
-    this.authReady.set(true)
-    this.hasPermission.set(next)
+    });
+
+    this.authReady.set(true);
+    this.hasPermission.set(next);
   }
   permissionGranted () {
-    return this.hasPermission.get()
+    return this.hasPermission.get();
   }
   ready () {
-    return this.authReady.get()
+    return this.authReady.get();
   }
-}
+};
 // ----------------------------------------------------------------------
 FlowRouter.Auth = new FlowAuth();

@@ -1,6 +1,6 @@
 Package.describe({
   name: 'cottz:flow-router-auth',
-  version: '0.1.0',
+  version: '0.1.1',
   // Brief, one-line summary of the package.
   summary: 'simple way to validate authentications with Flow-Router',
   // URL to the Git repository containing the source code for this package.
