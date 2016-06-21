@@ -9,7 +9,7 @@ FlowRouter.triggers.enter(function (context, redirect) {
     FlowRouter.Auth.check(route.name || route.path, route.group, redirect);
   else {
     Tracker.autorun(c => {
-      if (Meteor.user() && FlowRouter.subsReady()) {
+      if (FlowRouter.subsReady()) {
         c.stop();
         FlowRouter.Auth.check(route.name || route.path, route.group, redirect);
       }
